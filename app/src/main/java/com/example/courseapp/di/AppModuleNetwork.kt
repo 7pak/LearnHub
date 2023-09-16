@@ -73,16 +73,19 @@ object AppModuleNetwork {
                 json(Json { isLenient = true; ignoreUnknownKeys = true })
             }
             install(Logging) {
-                logger = Logger.DEFAULT
+                logger = object : Logger{
+                    override fun log(message: String) {
+                        Log.d("KtorFitLogger","log: $message")
+                    }
+
+                }
                 level = LogLevel.ALL
             }
             token?.let {
                 headers {
                     append(HttpHeaders.Authorization, "Bearer $it")
-                }
-            }
-            defaultRequest {
 
+                }
             }
 
         }
@@ -93,7 +96,7 @@ object AppModuleNetwork {
     fun provideUpdateApi(httpClient: HttpClient): UpdateApi {
 
         return Ktorfit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl("$BASE_URL/")
             .httpClient(httpClient)
             .build()
             .create()
@@ -104,7 +107,6 @@ object AppModuleNetwork {
     @Singleton
     fun provideOkHttpClient(tokenFlow: Flow<String?>): OkHttpClient {
         val client = OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
             .addInterceptor { chain ->
                 val token = runBlocking {
                     tokenFlow.firstOrNull() // Fetch the token asynchr onously

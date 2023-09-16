@@ -12,5 +12,5 @@ object Constants {
 
     const val DATA_STORE_NAME = "AppData"
 
-    const val BASE_URL = "https://e8ab-46-196-75-31.ngrok-free.app/"
+    const val BASE_URL = "https://ccfa-46-196-75-31.ngrok-free.app"
 }

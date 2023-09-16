@@ -292,8 +292,8 @@ fun ProfileHeader(
 @Composable
 fun CourseItem(
     context: Context,
-    text: String,
-    image: String,
+    text: String = "",
+    image: String? = null,
     onUpdateCourse: () -> Unit,
     onLongPress: () -> Unit,
     onNavigate: () -> Unit
@@ -313,7 +313,7 @@ fun CourseItem(
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(context = context)
                 .data(
-                    image
+                    image ?: R.drawable.ic_course
                 )
                 .crossfade(1000)
                 // .size(coil.size.Size.ORIGINAL)

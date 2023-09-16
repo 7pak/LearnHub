@@ -28,6 +28,11 @@ import com.example.courseapp.data.remote.teacher_get_dto.VideoData
 import com.example.courseapp.data.remote.teacher_post_dto.AddSectionFields
 import com.example.courseapp.domain.repository.TeacherRepositoryImp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,8 +59,8 @@ class TeacherModel @Inject constructor(
     private var _addCourseResponse = MutableLiveData<Response<AddCourseResponse>>()
     val addCourseResponse: LiveData<Response<AddCourseResponse>> = _addCourseResponse
 
-    private var _updateCourseResponse = MutableLiveData<String>()
-    val updateCourseResponse: LiveData<String> = _updateCourseResponse
+    private var _updateCourseResponse = MutableLiveData<HttpResponse>()
+    val updateCourseResponse: LiveData<HttpResponse> = _updateCourseResponse
     private var _deleteCourseResponse = MutableLiveData<Response<StatusResponse>>()
     val deleteCourseResponse: LiveData<Response<StatusResponse>> = _deleteCourseResponse
 
@@ -72,8 +77,8 @@ class TeacherModel @Inject constructor(
     private var _addVideoResponse = MutableLiveData<Response<AddVideoResponse>>()
     val addVideoResponse: LiveData<Response<AddVideoResponse>> = _addVideoResponse
 
-    private var _updateVideoResponse = MutableLiveData<Response<StatusResponse>>()
-    val updateVideoResponse: LiveData<Response<StatusResponse>> = _updateVideoResponse
+    private var _updateVideoResponse = MutableLiveData<HttpResponse>()
+    val updateVideoResponse: LiveData<HttpResponse> = _updateVideoResponse
     private var _deleteVideoResponse = MutableLiveData<Response<StatusResponse>>()
     val deleteVideoResponse: LiveData<Response<StatusResponse>> = _deleteVideoResponse
 
@@ -81,8 +86,8 @@ class TeacherModel @Inject constructor(
     private var _addFileResponse = MutableLiveData<Response<AddFileResponse>>()
     val addFileResponse: LiveData<Response<AddFileResponse>> = _addFileResponse
 
-    private var _updateFileResponse = MutableLiveData<Response<StatusResponse>>()
-    val updateFileResponse: LiveData<Response<StatusResponse>> = _updateFileResponse
+    private var _updateFileResponse = MutableLiveData<HttpResponse>()
+    val updateFileResponse: LiveData<HttpResponse> = _updateFileResponse
     private var _deleteFileResponse = MutableLiveData<Response<StatusResponse>>()
     val deleteFileResponse: LiveData<Response<StatusResponse>> = _deleteFileResponse
 
@@ -219,26 +224,25 @@ class TeacherModel @Inject constructor(
                 Log.d("ErrorTag", "input output streams error: ${e.localizedMessage} ")
             }
 
-            //Log.d("FilePath", "File path: ${file.absolutePath}")
 
-            val photoPart = try {
-                MultipartBody.Part.createFormData(
-                    name = "photo",
-                    filename = file.name,
-                    body = file.asRequestBody("image/*".toMediaTypeOrNull())
+            val multipart = MultiPartFormDataContent(formData {
+                append("photo", file.readBytes(), Headers.build {
+                    append(HttpHeaders.ContentType, "multipart/form-data")
+                    append(HttpHeaders.Accept, "application/json")
+                    append(HttpHeaders.ContentDisposition, "filename=${file.name}")
+                }
                 )
-            } catch (e: Exception) {
-                Log.d("ErrorTag", "photo part is null: ${e.localizedMessage}")
-                null
+                append("title", title)
+                append("description", description)
+                append("price", price)
+                append("category_id", category_id)
+                append("_method", "PUT")
             }
+            )
 
             _updateCourseResponse.value = teacherRepositoryImp.updateCourse(
                 id = id,
-                category_id = category_id,
-                description = description,
-                price = price,
-                title = title,
-                photoPart = file
+                multipart = multipart
             )
         }
     }
@@ -322,7 +326,6 @@ class TeacherModel @Inject constructor(
                 null
             }
 
-
             _addVideoResponse.value = teacherRepositoryImp.addVideo(
                 sectionId = sectionId,
                 title = title,
@@ -359,24 +362,25 @@ class TeacherModel @Inject constructor(
                 Log.d("ErrorTag", "error while upload the video in file: ${e.localizedMessage}")
             }
 
-            val videoPart = try {
-                MultipartBody.Part.createFormData(
-                    name = "videoUrl",  // This is the key for the video file in your server's API
-                    filename = file.name,
-                    body = file.asRequestBody(contentType = "video/*".toMediaTypeOrNull())
-                )
-            } catch (e: Exception) {
-                Log.d("ErrorTag", "video part is null: ${e.localizedMessage}")
-                null
-            }
+            val multipart = MultiPartFormDataContent(
+                formData {
+                    append("videoUrl", file.readBytes(), Headers.build {
+                        append(HttpHeaders.ContentType, "multipart/form-data")
+                        append(HttpHeaders.Accept, "application/json")
+                        append(HttpHeaders.ContentDisposition, "filename=${file.name}")
+                    }
+                    )
+                    append("title", title)
+                    append("section_id", sectionId)
+                    append("visible", if (visible) 0 else 1)
+                    append("_method", "PUT")
+                }
+            )
 
 
             _updateVideoResponse.value = teacherRepositoryImp.updateVideo(
                 id = id,
-                sectionId = sectionId,
-                title = title,
-                visible = if (visible) 0 else 1,
-                videoUrl = videoPart
+                multipart = multipart
             )
         }
     }
@@ -453,16 +457,22 @@ class TeacherModel @Inject constructor(
                 Log.d("ErrorTag", "error while upload the video in file: ${e.localizedMessage}")
             }
 
-            val filePart = MultipartBody.Part.createFormData(
-                name = "fileUrl",  // This is the key for the video file in your server's API
-                filename = file.name,
-                body = file.asRequestBody("application/pdf".toMediaTypeOrNull())
+            val multipart = MultiPartFormDataContent(
+                formData {
+                    append("fileUrl", file.readBytes(), Headers.build {
+                        append(HttpHeaders.ContentType, "multipart/form-data")
+                        append(HttpHeaders.Accept, "application/json")
+                        append(HttpHeaders.ContentDisposition, "filename=${file.name}")
+                    }
+                    )
+                    append("section_id", sectionId)
+                    append("_method", "PUT")
+                }
             )
 
             _updateFileResponse.value = teacherRepositoryImp.updateFile(
                 id = id,
-                sectionId = sectionId,
-                filePart = filePart
+                multipart = multipart
             )
         }
     }
@@ -497,7 +507,7 @@ class TeacherModel @Inject constructor(
                 response.body()?.data?.let {
                     _courses.value = it
                 }
-            }
+            } else Log.d("ErrorSkip", "fetchAllCourses: ${response.errorBody()?.string()}")
         }
     }
 

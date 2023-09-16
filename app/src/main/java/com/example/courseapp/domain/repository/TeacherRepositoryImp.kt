@@ -17,6 +17,7 @@ import com.example.courseapp.data.remote.teacher_post_dto.AddSectionFields
 import com.example.courseapp.data.repository.TeacherRepository
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.statement.HttpResponse
 
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -61,31 +62,11 @@ class TeacherRepositoryImp @Inject constructor(
 
     override suspend fun updateCourse(
         id: Int,
-        description: String,
-        price: String,
-        title: String,
-        category_id: Int,
-        photoPart: File
-    ): String? {
+        multipart: MultiPartFormDataContent
+    ): HttpResponse {
         val token = tokenFlow.firstOrNull()
 
-        val multipart = MultiPartFormDataContent(formData {
-            append("photo", photoPart.readBytes(), Headers.build {
-                append(HttpHeaders.ContentType, "image/png")
-                append(HttpHeaders.ContentDisposition, "filename=${photoPart.name}")
-            }
-            )
-            append("title", title)
-            append("description", description)
-            append("price", price)
-            append("category_id", category_id)
-        }
-        )
 
-        Log.d(
-            "AddCourse",
-            "updateFile: $id desciption: $description  title: $title  ,,,,,, $photoPart"
-        )
 
         return updateApi.updateCourse(
             "Bearer $token",
@@ -149,16 +130,14 @@ class TeacherRepositoryImp @Inject constructor(
 
     override suspend fun updateFile(
         id: Int,
-        sectionId: Int,
-        filePart: MultipartBody.Part?
-    ): Response<StatusResponse> {
+        multipart: MultiPartFormDataContent
+    ): HttpResponse {
         val token = tokenFlow.firstOrNull()
-        Log.d("updatefile", "updateFile: $id section: $sectionId  file: $filePart")
-        return courseApi.updateFile(
+
+        return updateApi.updateFile(
             "Bearer $token",
             id = id,
-            sectionId = sectionId,
-            fileUrl = filePart
+            map = multipart
         )
     }
 
@@ -192,21 +171,15 @@ class TeacherRepositoryImp @Inject constructor(
 
     override suspend fun updateVideo(
         id: Int,
-        sectionId: Int,
-        title: String,
-        visible: Int,
-        videoUrl: MultipartBody.Part?
-    ): Response<StatusResponse> {
+        multipart: MultiPartFormDataContent
+    ): HttpResponse {
         val token = tokenFlow.firstOrNull()
 
-        Log.d("ErrorSkip", "updateVideo:$title ,,,,,,,, $videoUrl")
-        return courseApi.updateVideo(
+
+        return updateApi.updateVideo(
             "Bearer $token",
             id = id,
-            sectionId = sectionId,
-            videoUrl = videoUrl,
-            title = title.toRequestBody(),
-            visible = visible
+            map = multipart
         )
     }
 

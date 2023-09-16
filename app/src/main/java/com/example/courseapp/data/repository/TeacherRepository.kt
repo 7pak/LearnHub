@@ -11,10 +11,10 @@ import com.example.courseapp.data.remote.GetSectionResponse
 import com.example.courseapp.data.remote.GetVideoResponse
 import com.example.courseapp.data.remote.StatusResponse
 import com.example.courseapp.data.remote.teacher_post_dto.AddSectionFields
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.statement.HttpResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
-import retrofit2.http.Part
-import java.io.File
 
 interface TeacherRepository {
 
@@ -30,12 +30,8 @@ interface TeacherRepository {
 
     suspend fun updateCourse(
         id: Int,
-        description: String,
-        price: String,
-        title: String,
-        category_id: Int,
-        photoPart: File
-    ): String?
+        multipart: MultiPartFormDataContent
+    ): HttpResponse
 
     suspend fun deleteCourse(
         id: Int
@@ -61,9 +57,8 @@ interface TeacherRepository {
 
     suspend fun updateFile(
         id: Int,
-        sectionId: Int,
-        filePart: MultipartBody.Part?
-    ): Response<StatusResponse>
+        multipart: MultiPartFormDataContent
+    ): HttpResponse
 
     suspend fun deleteFile(
         id: Int
@@ -78,11 +73,8 @@ interface TeacherRepository {
 
     suspend fun updateVideo(
         id: Int,
-       sectionId: Int,
-        title: String,
-        visible: Int,
-        videoUrl: MultipartBody.Part?
-    ): Response<StatusResponse>
+        multipart: MultiPartFormDataContent
+    ): HttpResponse
 
     suspend fun deleteVideo(
         id: Int

@@ -8,6 +8,7 @@ import com.example.courseapp.data.remote.teacher_post_dto.AddFileFields
 import com.example.courseapp.data.remote.teacher_post_dto.AddSectionFields
 import com.example.courseapp.data.remote.teacher_post_dto.AddVideoFields
 import com.example.courseapp.domain.model.TeacherModel
+import io.ktor.client.call.body
 
 
 fun deleteAccount(
@@ -92,11 +93,27 @@ fun updateCourse(
         id = addCourseFields.courseId!!
     )
     teacherModel.updateCourseResponse.observe(lifecycleOwner) { response ->
-        if (response.isNotEmpty()) {
-            Log.d(
-                "AddCourse",
-                "updateCourse: Response is : : ${response}}"
-            )
+
+
+        when(response.status.value){
+            in 200..299 -> {
+                Log.d(
+                    "AddCourse",
+                    "updateCourse: Response is Successful: ${response.status.description}}"
+                )
+
+                onNavigate()
+            }
+
+            else -> {
+                Log.d(
+                    "AddCourse",
+                    "updateCourse: Response is Not Successful: : ${response.status.description}}"
+                )
+                if (onFailed != null) {
+                    onFailed()
+                }
+            }
         }
     }
 }
@@ -280,22 +297,26 @@ fun updateVideo(
     )
 
     teacherModel.updateVideoResponse.observe(lifecycleOwner) { response ->
-        if (response.isSuccessful) {
-            Log.d(
-                "AddCourse",
-                "update video: Response is Successful : ${response.body()?.message}}"
-            )
-            onNavigate()
-        } else {
-            Log.d(
-                "AddCourse",
-                "update video: Response is NOT : ${response.errorBody()?.string()}"
-            )
-            if (onFailed != null) {
-                onFailed()
+        when(response.status.value){
+            in 200..299 -> {
+                Log.d(
+                    "AddCourse",
+                    "updateCourse: Response is Successful: ${response.status.description}}"
+                )
+                onNavigate()
+            }
+
+
+            else -> {
+                Log.d(
+                    "AddCourse",
+                    "updateCourse: Response is Not Successful: : ${response.status.description}}"
+                )
+                if (onFailed != null) {
+                    onFailed()
+                }
             }
         }
-
     }
 }
 
@@ -374,18 +395,24 @@ fun updateFile(
     )
 
     teacherModel.updateFileResponse.observe(lifecycleOwner) { response ->
-        if (response.isSuccessful) {
-            Log.d(
-                "AddCourse",
-                "addFile: Response is Successful : ${response.body()?.message}}"
-            )
-            onNavigate()
-        } else Log.d(
-            "AddCourse",
-            "addFile: Response is NOT : ${response.errorBody()?.string()}"
-        )
-        if (onFailed != null) {
-            onFailed()
+        when(response.status.value){
+            in 200..299 -> {
+                Log.d(
+                    "AddCourse",
+                    "updateCourse: Response is Successful: ${response.status.description}}"
+                )
+                onNavigate()
+            }
+
+            else -> {
+                Log.d(
+                    "AddCourse",
+                    "updateCourse: Response is Not Successful: : ${response.status.description}}"
+                )
+                if (onFailed != null) {
+                    onFailed()
+                }
+            }
         }
     }
 }
