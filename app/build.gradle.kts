@@ -6,6 +6,7 @@ plugins {
     id ("kotlinx-serialization")
     id ("com.google.devtools.ksp")
     id("de.jensklingenberg.ktorfit") version "1.0.0"
+    id("kotlin-parcelize")
 }
 
 val ktorfit = "1.6.0"
@@ -70,7 +71,6 @@ dependencies {
     implementation ("androidx.compose.ui:ui:1.4.0")
     implementation ("androidx.compose.ui:ui-tooling-preview:1.4.0")
     implementation( "androidx.compose.material:material:1.4.0")
-
     testImplementation ("junit:junit:4.13.2")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
@@ -89,7 +89,7 @@ dependencies {
 
 
     // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     // Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.46")
@@ -116,7 +116,8 @@ dependencies {
     ksp("de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit")
     implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfit")
 
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.8.10-1.0.9")
+
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.9.0-1.0.11")
     implementation("de.jensklingenberg.ktorfit:ktorfit-lib-light:1.6.0")
 
     // GSON

@@ -1,19 +1,17 @@
 package com.example.courseapp.navigation
 
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraphBuilder
+ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.courseapp.Screens
 import com.example.courseapp.common.Constants
-import com.example.courseapp.presentation.teacher.AddCourseScreen
-import com.example.courseapp.presentation.teacher.AddSectionScreen
-import com.example.courseapp.presentation.teacher.AddVideoScreen
-import com.example.courseapp.presentation.teacher.DocumentAndVideosScreen
-import com.example.courseapp.presentation.teacher.SectionsScreen
-import com.example.courseapp.presentation.teacher.TeacherHome
-import com.example.courseapp.presentation.teacher.TeacherProfile
+import com.example.courseapp.teacher_features.presentation.AddCourseScreen
+import com.example.courseapp.teacher_features.presentation.AddSectionScreen
+import com.example.courseapp.teacher_features.presentation.AddVideoScreen
+import com.example.courseapp.teacher_features.presentation.DocumentAndVideosScreen
+import com.example.courseapp.teacher_features.presentation.SectionsScreen
+import com.example.courseapp.teacher_features.presentation.TeacherHome
+import com.example.courseapp.teacher_features.presentation.TeacherProfile
 
 
 fun NavGraphBuilder.teacherNavGraph(
@@ -37,9 +35,9 @@ fun NavGraphBuilder.teacherNavGraph(
             AddVideoScreen(navController = navController, sharedViewModel =sharedViewModel)
         }
         composable(route = Screens.SectionsScreen.route){
-            SectionsScreen(navController = navController)
+            SectionsScreen(navController = navController,sharedViewModel = sharedViewModel)
         }
-        composable(route = Screens.VideoScreen.route){
+        composable(route = Screens.DocumentVideosScreen.route){
             DocumentAndVideosScreen(navController = navController,sharedViewModel = sharedViewModel)
         }
     }

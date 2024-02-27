@@ -25,7 +25,9 @@ class UserVerificationModel @Inject constructor(
         .flowOn(Dispatchers.Main)
         .buffer(Channel.CONFLATED)
 
-
+    val userIdFlow: Flow<Int?> = dataStore.currentUserId
+        .flowOn(Dispatchers.Main)
+        .buffer(Channel.CONFLATED)
 
     fun saveToken(token: String) {
         viewModelScope.launch {
@@ -48,6 +50,18 @@ class UserVerificationModel @Inject constructor(
     fun clearVerification() {
         viewModelScope.launch {
             dataStore.clearVerification()
+        }
+    }
+
+    fun saveUserId(userId: Int) {
+        viewModelScope.launch {
+            dataStore.saveUserId(userId)
+        }
+    }
+
+    fun clearUserId() {
+        viewModelScope.launch {
+            dataStore.clearUserId()
         }
     }
 }
