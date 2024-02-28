@@ -25,78 +25,85 @@ fun loginClicked(
     onLoading: (Boolean) -> Unit
 ) {
 
+    try {
 
-
-    onLoading(true)
-    authModel.loginUser(
-        LoginUserData(
-            email = email,
-            password = password,
-            type = when (userType) {
-                UserType.TEACHER -> "teacher"
-                UserType.STUDENT -> "student"
-            }
+        onLoading(true)
+        authModel.loginUser(
+            LoginUserData(
+                email = email,
+                password = password,
+                type = when (userType) {
+                    UserType.TEACHER -> "teacher"
+                    UserType.STUDENT -> "student"
+                }
+            )
         )
-    )
 
-    authModel.loginResponse.observe(lifecycle) { response ->
-        Log.d(
-            "ErrorSkip",
-            " Login before Success Collected verification :${response.body()?.data?.email} "
-        )
-        if (response.isSuccessful && response.errorBody() == null) {
+        authModel.loginResponse.observe(lifecycle) { response ->
             Log.d(
                 "ErrorSkip",
-                " Login after Success Collected verification :${response.body()?.data?.verification.toString()} "
+                " Login before Success Collected verification :${response.body()?.data?.email} "
             )
-            val token = response.body()?.data?.token
-            Log.d(
-                "ErrorSkip",
-                " Login after Success Collected token :${token} "
-            )
-            token?.let {
-                userVerificationModel.saveToken(it)
-            }
-            if (!token.isNullOrEmpty()) {
-                val verificationId = response.body()?.data?.verification.toString()
-                verificationId.let {
-                    try {
-                        userVerificationModel.saveVerification(it)
-                    } catch (e: Exception) {
-                        Log.d(
-                            "ErrorSkip",
-                            " didn't success updating verification :${response.body()?.data?.verification} "
-                        )
+
+
+
+            if (response.isSuccessful && response.errorBody() == null) {
+                Log.d(
+                    "ErrorSkip",
+                    " Login after Success Collected verification :${response.body()?.data?.verification.toString()} "
+                )
+                val token = response.body()?.data?.token
+                Log.d(
+                    "ErrorSkip",
+                    " Login after Success Collected token :${token} "
+                )
+                token?.let {
+                    userVerificationModel.saveToken(it)
+                }
+                if (!token.isNullOrEmpty()) {
+                    val verificationId = response.body()?.data?.verification.toString()
+                    verificationId.let {
+                        try {
+                            userVerificationModel.saveVerification(it)
+                        } catch (e: Exception) {
+                            Log.d(
+                                "ErrorSkip",
+                                " didn't success updating verification :${response.body()?.data?.verification} "
+                            )
+                        }
                     }
+
+                    val userId = response.body()?.data?.id
+
+
+                    Toast.makeText(
+                        context,
+                        "Login is Successful ${response.body()?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    Log.d("ErrorSkip", "loginClicked: ${response.body()?.data?.id} ")
+
+                    userId?.let {
+                        userVerificationModel.saveUserId(it)
+                        onNavigate(it)
+                    }
+
                 }
 
-                val userId = response.body()?.data?.id
-
-
+            } else {
+                Log.d("LogSignScreen", "LogSignScreen:${response.errorBody()?.string()} ")
                 Toast.makeText(
                     context,
-                    "Login is Successful ${response.body()?.message}",
+                    "Login is NOT Successful: Invalid Type, Email or Password ",
                     Toast.LENGTH_SHORT
                 ).show()
-
-                Log.d("ErrorSkip", "loginClicked: ${response.body()?.data?.id} ")
-
-                userId?.let{
-                    userVerificationModel.saveUserId(it)
-                    onNavigate(it)
-                }
-
             }
-
-        } else {
-            Log.d("LogSignScreen", "LogSignScreen:${response.errorBody()?.string()} ")
-            Toast.makeText(
-                context,
-                "Login is NOT Successful: Invalid Type, Email or Password ",
-                Toast.LENGTH_SHORT
-            ).show()
+            onLoading(false)
         }
-        onLoading(false)
+    }catch (e:Exception){
+        Log.d("LogSignScreen", "LogSignScreen:${e.cause}")
+
     }
 }
 
